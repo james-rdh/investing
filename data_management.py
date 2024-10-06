@@ -5,13 +5,13 @@ import requests # communicate with the API
 import json # work with json data
 import sqlite3 # interact with the database
 
-class DataHandler:
+class DataManager:
     def __init__(self, data_source = 'Alpha Vantage'):
         self.data_source = data_source
         load_dotenv()
         self.api_key = os.environ.get('ALPHA_VANTAGE_API_KEY')
     
-    def create_database(self, db_path='./data/investment_data.db', db_schema_path='./db_schema.sql'):   
+    def new_database(self, db_path='./data/investment_data.db', db_schema_path='./db_schema.sql'):   
         """
         Creates a SQLite database with the specified schema for investment data.
 
@@ -36,6 +36,22 @@ class DataHandler:
             print("Database and tables created successfully!")
         except sqlite3.Error as e:
             print(f"An error occurred: {e}")
+        finally:
+            if conn:
+                conn.close()
+
+    def check_database(self, db_path='./data/investment_data.db'):
+        conn = None
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+            tables = cursor.fetchall()
+            print("Tables in the database:")
+            for table in tables:
+                print(table[0])
+        except ValueError as e:
+            print(e)
         finally:
             if conn:
                 conn.close()
