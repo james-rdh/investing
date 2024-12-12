@@ -1,4 +1,4 @@
-DATABASE_INFO = {
+DB_CONFIG = {
     "DB_SYSTEM": "postgresql",
     "DB_USER": "finance_user",
     "DB_PASSWORD": "finance_user_password",

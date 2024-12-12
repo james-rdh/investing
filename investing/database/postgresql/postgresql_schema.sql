@@ -345,5 +345,5 @@ CREATE TABLE DailySignalData (
     signal_id INTEGER NOT NULL,
     value REAL NOT NULL,
     FOREIGN KEY (date) REFERENCES Dates(date),
-    FOREIGN KEY (signal_id) REFERENCES Signals(id),
+    FOREIGN KEY (signal_id) REFERENCES Signals(id)
 );

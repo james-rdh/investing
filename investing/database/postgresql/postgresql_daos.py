@@ -1,33 +1,19 @@
-from .config import DATABASE_URL
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import IntegrityError, OperationalError, SQLAlchemyError
+import psycopg2
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-def create_tables():
-    """Creates database tables."""
-    try:
-        Base.metadata.create_all(bind=engine)
-        print("Database tables created successfully!")
-    except SQLAlchemyError as e:
-        print(f"Error creating database tables: {e}")
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-class BaseDAO:
+class PostgresqlDAO:
     def __init__(self, db):
         self.db = db
-    
+        connection_string = get_connection_string(DB_CONFIG)
+        conn = psycopg2.connect(connection_string)
+        logger.info("Connected to the database!")
+        return conn
+    except psycopg2.Error as e:
+        logger.error(f"Error connecting to the database: {e}")
+        raise
+   
     def create(self, table, data):
         new_object = table(**data)
         self.db.add(new_object)
@@ -62,9 +48,14 @@ class BaseDAO:
             self.db.refresh(obj)
         return obj
 
-    def delete(self, object_id):
-        obj = self.get_by_id(object_id)
+    def delete(self, table, object_id):
+        obj = self.get_by_id(table, object_id)
         if obj:
-            self.db.delete(obj)
+            self.db.delete(table, obj)
             self.db.commit()
         return obj
+    
+class DAOFactory:
+    @staticmethod
+    def get_dao(db):
+        return PostgresqlDAO(db)

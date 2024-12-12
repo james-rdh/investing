@@ -1,0 +1,112 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Data Endpoints Schema",
+    "description": "Schema defining data endpoints and their properties",
+    "type": "object",
+    "properties": {
+        "endpoints": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^EP_[A-Z0-9]{8}$",
+                        "description": "Unique identifier for the endpoint"
+                    },
+                    "name": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+                        "description": "Human-readable name for the endpoint"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Detailed description of the endpoint"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "REST_API",
+                            "SOAP_API",
+                            "DATABASE",
+                            "FILE_SYSTEM",
+                            "MESSAGE_QUEUE",
+                            "CLOUD_STORAGE",
+                            "DATA_WAREHOUSE",
+                            "DATA_LAKE"
+                        ]
+                    },
+                    "location": {
+                        "type": "object",
+                        "properties": {
+                            "environment": {
+                                "type": "string",
+                                "enum": ["DEV", "TEST", "STAGING", "PROD"]
+                            },
+                            "baseUrl": {
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "host": {
+                                "type": "string",
+                                "format": "hostname"
+                            },
+                            "port": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 65535
+                            },
+                            "protocol": {
+                                "type": "string",
+                                "enum": ["http", "https", "ftp", "sftp", "jdbc", "kafka"]
+                            }
+                        },
+                        "required": ["environment", "host"]
+                    },
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": ["avro", "json", "parquet", "csv", "xml", "custom"]
+                            },
+                            "definition": {
+                                "type": "string",
+                                "description": "Schema definition or reference to external schema"
+                            },
+                            "version": {
+                                "type": "string",
+                                "pattern": "^\\d+\\.\\d+\\.\\d+$"
+                            }
+                        },
+                        "required": ["type", "version"]
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "properties": {
+                            "owner": {
+                                "type": "string"
+                            },
+                            "created": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "lastModified": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "tags": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": ["id", "name", "type", "location", "schema"]
+            }
+        }
+    },
+    "required": ["endpoints"]
+}

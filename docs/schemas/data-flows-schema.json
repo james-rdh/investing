@@ -1,0 +1,100 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Data Flows Schema",
+    "description": "Schema defining data flows between endpoints",
+    "type": "object",
+    "properties": {
+        "flows": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "pattern": "^FL_[A-Z0-9]{8}$",
+                        "description": "Unique identifier for the flow"
+                    },
+                    "name": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$",
+                        "description": "Human-readable name for the flow"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["ETL", "ELT", "STREAMING", "BATCH", "REAL_TIME", "CDC"]
+                    },
+                    "source": {
+                        "type": "string",
+                        "description": "Reference to source endpoint ID"
+                    },
+                    "destination": {
+                        "type": "string",
+                        "description": "Reference to destination endpoint ID"
+                    },
+                    "schedule": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": ["CRON", "INTERVAL", "EVENT_DRIVEN"]
+                            },
+                            "expression": {
+                                "type": "string"
+                            },
+                            "timezone": {
+                                "type": "string"
+                            }
+                        },
+                        "required": ["type", "expression"]
+                    },
+                    "transformation": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": ["SQL", "PYTHON", "SPARK", "CUSTOM"]
+                            },
+                            "definition": {
+                                "type": "string",
+                                "description": "Reference to transformation logic"
+                            },
+                            "version": {
+                                "type": "string",
+                                "pattern": "^\\d+\\.\\d+\\.\\d+$"
+                            },
+                            "parameters": {
+                                "type": "object"
+                            }
+                        },
+                        "required": ["type", "definition", "version"]
+                    },
+                    "quality": {
+                        "type": "object",
+                        "properties": {
+                            "rules": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "enum": ["COMPLETENESS", "ACCURACY", "VALIDITY"]
+                                        },
+                                        "threshold": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": ["id", "name", "type", "source", "destination", "transformation"]
+            }
+        }
+    },
+    "required": ["flows"]
+}

@@ -1,4 +1,4 @@
-from .models import *
+from .investing.database.models_sqlalchemy import *
 import json
 
 def main():

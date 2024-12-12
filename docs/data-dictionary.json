@@ -1,0 +1,275 @@
+{
+    "version": "1.0.0",
+    "lastUpdated": "2024-11-22T12:00:00Z",
+    "owner": "James",
+    "definitions": {
+        "endpoints": {
+            "endpoints": [
+                {
+                    "id": "EP_1",
+                    "name": "file_system",
+                    "description": "File system for storing data files",
+                    "type": "FILE_SYSTEM",
+                    "location": {
+                        "environment": "PROD",
+                        "host": "localhost",
+                        "port": 8080,
+                        "protocol": "http"
+                    },
+                    "schema": {
+                        "type": "custom",
+                        "definition": "schema/file-system-schema.json",
+                        "version": "2.1.0"
+                    },
+                    "metadata": {
+                        "owner": "James",
+                        "created": "2024-11-22T12:00:00Z",
+                        "lastModified": "2024-11-22T12:00:00Z"
+                    }
+                },
+                {
+                    "id": "EP_2",
+                    "name": "investing_database",
+                    "description": "Primary PostgreSQL database containing investing data",
+                    "type": "DATABASE",
+                    "location": {
+                        "environment": "PROD",
+                        "host": "investing-db.james.com",
+                        "port": 5432,
+                        "protocol": "jdbc"
+                    },
+                    "schema": {
+                        "type": "custom",
+                        "definition": "schema/investing-db-schema.json",
+                        "version": "2.1.0"
+                    },
+                    "metadata": {
+                        "owner": "James",
+                        "created": "2024-11-22T12:00:00Z",
+                        "lastModified": "2024-11-22T12:00:00Z"
+                    }
+                },
+                {
+                    "id": "EP_3",
+                    "name": "alpha_vantage",
+                    "description": "API endpoint for financial data",
+                    "type": "API",
+                    "location": {
+                        "environment": "PROD",
+                        "host": "alphavantage.com",
+                        "port": 332,
+                        "protocol": "https"
+                    },
+                    "schema": {
+                        "type": "custom",
+                        "definition": "schema/alpha-vantage-schema.json",
+                        "version": "1.0.0"
+                    },
+                    "metadata": {
+                        "owner": "Alpha Vantage"
+                    }
+                },
+                {
+                    "id": "EP_4",
+                    "name": "rest_countries",
+                    "description": "API endpoint for country data",
+                    "type": "API",
+                    "location": {
+                        "environment": "PROD",
+                        "host": "restcountries.com",
+                        "protocol": "https"
+                    },
+                    "schema": {
+                        "type": "custom",
+                        "definition": "schema/rest-countries-schema.json",
+                        "version": "3.0.0"
+                    },
+                    "metadata": {
+                        "owner": "REST Countries"
+                    }
+                },
+                {
+                    "id": "EP_5",
+                    "name": "wikipedia",
+                    "description": "API endpoint for wikipedia data",
+                    "type": "API",
+                    "location": {
+                        "environment": "PROD",
+                        "host": "wikipedia.com",
+                        "protocol": "https"
+                    },
+                    "schema": {
+                        "type": "custom",
+                        "definition": "schema/wikipedia-schema.json",
+                        "version": "3.0.0"
+                    },
+                    "metadata": {
+                        "owner": "Wikipedia"
+                    }
+                }
+            ]
+        },
+        "flows": {
+            "flows": [
+                {
+                    "id": "FL_12345678",
+                    "name": "customer_to_warehouse",
+                    "description": "Daily customer data sync to warehouse",
+                    "type": "ETL",
+                    "source": "EP_12345678",
+                    "destination": "EP_98765432",
+                    "schedule": {
+                        "type": "CRON",
+                        "expression": "0 2 * * *",
+                        "timezone": "UTC"
+                    },
+                    "transformation": {
+                        "type": "SQL",
+                        "definition": "transforms/customer_transformation.sql",
+                        "version": "1.0.0",
+                        "parameters": {
+                            "excludeDeleted": true,
+                            "batchSize": 10000
+                        }
+                    },
+                    "quality": {
+                        "rules": [
+                            {
+                                "type": "COMPLETENESS",
+                                "threshold": 0.99
+                            },
+                            {
+                                "type": "ACCURACY",
+                                "threshold": 0.95
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "FL_87654321",
+                    "name": "sales_stream_processing",
+                    "description": "Real-time sales event processing",
+                    "type": "STREAMING",
+                    "source": "EP_87654321",
+                    "destination": "EP_98765432",
+                    "transformation": {
+                        "type": "SPARK",
+                        "definition": "transforms/sales_stream_processor.py",
+                        "version": "1.1.0",
+                        "parameters": {
+                            "windowSize": "5m",
+                            "checkpointLocation": "s3://sample-corp/checkpoints/sales"
+                        }
+                    }
+                }
+            ]
+        },
+        "security": {
+            "authentication": {
+                "methods": [
+                    {
+                        "id": "AUTH_12345678",
+                        "type": "OAUTH2",
+                        "provider": "Okta",
+                        "config": {
+                            "authorizationUrl": "https://sample-corp.okta.com/oauth2/auth",
+                            "tokenUrl": "https://sample-corp.okta.com/oauth2/token",
+                            "scope": ["data.read", "data.write"]
+                        }
+                    },
+                    {
+                        "id": "AUTH_87654321",
+                        "type": "API_KEY",
+                        "provider": "Internal",
+                        "config": {
+                            "header": "X-API-Key",
+                            "rotationPeriod": "90d"
+                        }
+                    }
+                ]
+            },
+            "encryption": {
+                "atRest": {
+                    "enabled": true,
+                    "algorithm": "AES-256",
+                    "keyRotationPeriod": "180d"
+                },
+                "inTransit": {
+                    "enabled": true,
+                    "protocol": "TLS1.3"
+                }
+            }
+        }
+    },
+    "governance": {
+        "policies": [
+            {
+                "id": "POL_12345678",
+                "name": "Customer Data Retention",
+                "type": "RETENTION",
+                "description": "Customer data retention policy",
+                "rules": [
+                    {
+                        "condition": "data.classification == 'PII'",
+                        "action": "DELETE AFTER 7 YEARS"
+                    },
+                    {
+                        "condition": "data.type == 'TRANSACTION'",
+                        "action": "ARCHIVE AFTER 2 YEARS"
+                    }
+                ]
+            }
+        ],
+        "compliance": {
+            "frameworks": [
+                {
+                    "name": "GDPR",
+                    "requirements": [
+                        "Data minimization",
+                        "Right to be forgotten",
+                        "Data portability"
+                    ]
+                },
+                {
+                    "name": "SOX",
+                    "requirements": [
+                        "Audit trail maintenance",
+                        "Financial data integrity"
+                    ]
+                }
+            ],
+            "dataClassification": {
+                "levels": [
+                    {
+                        "level": "RESTRICTED",
+                        "handling": "Encryption required, access logged"
+                    },
+                    {
+                        "level": "CONFIDENTIAL",
+                        "handling": "Internal use only, controlled access"
+                    }
+                ]
+            }
+        },
+        "stewardship": {
+            "roles": [
+                {
+                    "role": "Data Owner",
+                    "responsibilities": [
+                        "Define data policies",
+                        "Approve access requests",
+                        "Ensure compliance"
+                    ]
+                },
+                {
+                    "role": "Data Steward",
+                    "responsibilities": [
+                        "Monitor data quality",
+                        "Implement policies",
+                        "Maintain documentation"
+                    ]
+                }
+            ]
+        }
+    }
+}

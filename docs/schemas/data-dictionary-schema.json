@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Data Dictionary Root Schema",
+    "description": "Root schema defining the structure of the data dictionary",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "Semantic version of the data dictionary",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the last update"
+        },
+        "owner": {
+            "type": "string",
+            "description": "Entity owning this data dictionary"
+        },
+        "definitions": {
+            "type": "object",
+            "properties": {
+                "endpoints": {
+                    "$ref": "data-endpoints-schema.json"
+                },
+                "flows": {
+                    "$ref": "data-flows-schema.json"
+                },
+                "security": {
+                    "$ref": "data-security-schema.json"
+                }
+            },
+            "required": ["endpoints", "flows", "security"]
+        },
+        "governance": {
+            "$ref": "data-governance-schema.json"
+        }
+    },
+    "required": ["version", "lastUpdated", "definitions", "governance"]
+}

@@ -1,0 +1,77 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Security Schema",
+    "description": "Schema defining security and authentication configurations",
+    "type": "object",
+    "properties": {
+        "authentication": {
+            "type": "object",
+            "properties": {
+                "methods": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^AUTH_[A-Z0-9]{8}$"
+                            },
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "BASIC_AUTH",
+                                    "OAUTH2",
+                                    "API_KEY",
+                                    "JWT",
+                                    "CERTIFICATE",
+                                    "KERBEROS",
+                                    "SAML"
+                                ]
+                            },
+                            "provider": {
+                                "type": "string"
+                            },
+                            "config": {
+                                "type": "object",
+                                "description": "Provider-specific configuration"
+                            }
+                        },
+                        "required": ["id", "type"]
+                    }
+                }
+            }
+        },
+        "encryption": {
+            "type": "object",
+            "properties": {
+                "atRest": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "algorithm": {
+                            "type": "string"
+                        },
+                        "keyRotationPeriod": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "inTransit": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "protocol": {
+                            "type": "string",
+                            "enum": ["TLS1.2", "TLS1.3"]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "required": ["authentication", "encryption"]
+}
